@@ -6,23 +6,25 @@ void bracketsForNegativeSign(Stack &inputStack) {
     std::string inputString = inputStack.stackToString();
     std::string stringReplace;
     Symbols symbols;
-    int firstLen = inputString.length();
-    int count = 0;
+
     for (int i = 0; i < inputString.length(); ++i) {
         if (symbols.findSymbolPriority(inputString[i]) != 0) {
             if (inputString[i + 1] == '-') {
                 stringReplace = "(-";
-                int j, NumberDigits=0;
+                int j, numberDigits = 0;
                 for (j = i + 2; (inputString[j] >= 48 && inputString[j] <= 57) || inputString[j] == '.'; ++j) {
                     stringReplace += inputString[j];
-                    NumberDigits++;
+                    numberDigits++;
                 }
                 stringReplace += ")";
 
-                inputString.replace(j - 2 , NumberDigits + 1, stringReplace);
-                std::cout <<inputString<< "\n";
+                inputString.replace(j - numberDigits - 1, numberDigits + 1, stringReplace);
+//                std::cout << inputString << " J " << j - numberDigits-1 << " N " << numberDigits << "\n";
             }
         }
+    }
+    for (int i = 0; i < inputString.length(); ++i) {
+        inputStack.push(inputString[i]);
     }
 }
 
@@ -34,5 +36,7 @@ int main() {
     inputStack.pushStringToStack(input);
 
     bracketsForNegativeSign(inputStack);
+
+    std::cout<<inputStack.stackToString();
     return 0;
 }
