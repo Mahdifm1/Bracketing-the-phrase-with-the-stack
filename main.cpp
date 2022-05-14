@@ -12,7 +12,7 @@
 //    }
 //}
 
-void bracketsForNegativeSign(Stack &inputStack) {
+Stack bracketsForNegativeSign(Stack inputStack) {
     std::string inputString = inputStack.stackToString();
     std::string stringReplace;
     Symbols symbols;
@@ -46,7 +46,6 @@ void bracketsForNegativeSign(Stack &inputStack) {
             }
 
             stack.push(')');
-//            std::cout<<" P "<<stack.getStack();
 
         } else if ((symbols.findSymbolPriority(inputString[i]) != 0 && inputString[i + 1] == '-' &&
                     inputString[i + 2] == '(')) {
@@ -61,20 +60,15 @@ void bracketsForNegativeSign(Stack &inputStack) {
                     open++;
                 if (inputString[j] == ')')
                     close++;
-//                stack.push(inputString[j]);
-//                std::cout<<" c "<<close<<" o "<<open;
             }
             inputString.insert(j, ")");
 //            stack.push(')');
             i += 2;
 //            std::cout << "- p " << stack.getStack()<<"\n";
         }
-
     }
-    std::cout << "s \n" << stack.getStack() << "\n";
-    for (int i = 0; i < inputString.length(); ++i) {
-        inputStack.push(inputString[i]);
-    }
+//    std::cout << "s \n" << stack.getStack() << "\n";
+    return stack;
 }
 
 Stack fillInTheBlanksByMultiplying(std::string input) { //Filling the blanks by multiplying char
@@ -127,7 +121,7 @@ int main() {
     inputStack = fillInTheBlanksByMultiplying(input);
 
 //    inputStack.pushStringToStack(input);
-    bracketsForNegativeSign(inputStack);
+    inputStack = bracketsForNegativeSign(inputStack);
 
     std::cout << inputStack.stackToString();
     return 0;
