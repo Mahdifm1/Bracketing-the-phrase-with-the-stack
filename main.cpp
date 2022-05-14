@@ -16,66 +16,62 @@ void bracketsForNegativeSign(Stack &inputStack) {
     std::string inputString = inputStack.stackToString();
     std::string stringReplace;
     Symbols symbols;
+    Stack stack;
 
     for (int i = 0; i < inputString.length(); ++i) {
-        if (inputString[i] == '(' && inputString[i + 1] == '-') { //for (-sin15 + ...
-            int countSymbol = 0;
-            stringReplace = "(";
-            int j;
-            for (j = i + 1; countSymbol < 2; ++j) {
-                if (symbols.findSymbolPriority(inputString[j]) != 0 || inputString[i] == ')') {
-                    countSymbol++;
-                    if (countSymbol == 2)
-                        break;
-                }
+        stack.push(inputString[i]);
+        int closeSymCount = 0;
 
-                stringReplace += inputString[j];
-            }
-            stringReplace += ")";
+        if ((inputString[i] == '(' || symbols.findSymbolPriority(inputString[i]) != 0) &&
+            inputString[i + 1] == '-' && inputString[i + 2] != '(') { //for (-sin15 + ...
+            stack.push('(');
+            stack.push('-');
 
-
-            if (symbols.findSymbolPriority(inputString[j + 1]) == 0) {
-                inputString.replace(i + 1, j - i - 1, stringReplace);
-                i++;
-            }
-
-            std::cout << inputString << "\n";
-        } else if (symbols.findSymbolPriority(inputString[i]) != 0) { //for *-15 +...
-            if (((inputString[i + 2] >= 65 && inputString[i + 2] <= 90) ||
-                 (inputString[i + 2] >= 97 && inputString[i + 2] <= 122)) &&
-                inputString[i + 1] == '-') { // for *-sin15 ...
-                stringReplace = "(-";
-                int j, numberWords = 0, numberDigits = 0;
-                for (j = i + 2; j < (inputString[j] >= 65 && inputString[j] <= 90) ||
-                                (inputString[j] >= 97 && inputString[j] <= 122); ++j) {
-                    stringReplace += inputString[j];
-                    numberWords++;
-                }
-                stringReplace += "(";
-                for (; (inputString[j] >= 48 && inputString[j] <= 57) || inputString[j] == '.'; ++j) {
-                    stringReplace += inputString[j];
-                    numberDigits++;
-                }
-                stringReplace += "))";
-
-//                std::cout << stringReplace << "\n";
-
-                inputString.replace(i + 1, numberWords + numberDigits + 1, stringReplace);
-            } else if (inputString[i + 1] == '-') { //for *-15 + ...
-                stringReplace = "(-";
-                int j, numberDigits = 0;
+            int j = 0;
+            if (inputString[i + 2] >= 48 && inputString[i + 2] <= 57) {
                 for (j = i + 2; (inputString[j] >= 48 && inputString[j] <= 57) || inputString[j] == '.'; ++j) {
-                    stringReplace += inputString[j];
-                    numberDigits++;
+                    stack.push(inputString[j]);
                 }
-                stringReplace += ")";
-
-                inputString.replace(i + 1, numberDigits + 1, stringReplace);
-//                std::cout << inputString << " J " << j - numberDigits - 1 << " N " << numberDigits << "\n";
+                i += j - i - 1;
+            } else if ((inputString[i + 2] >= 65 && inputString[i + 2] <= 90) ||
+                       (inputString[i + 2] >= 97 && inputString[i + 2] <= 122)) {
+                for (j = i + 2; (inputString[j] >= 65 && inputString[j] <= 90) ||
+                                (inputString[j] >= 97 && inputString[j] <= 122); ++j) {
+                    stack.push(inputString[j]);
+                }
+                for (; (inputString[j] >= 48 && inputString[j] <= 57) || inputString[j] == '.'; ++j) {
+                    stack.push(inputString[j]);
+                }
+                i += j - i - 1;
             }
+
+            stack.push(')');
+//            std::cout<<" P "<<stack.getStack();
+
+        } else if ((symbols.findSymbolPriority(inputString[i]) != 0 && inputString[i + 1] == '-' &&
+                    inputString[i + 2] == '(')) {
+
+            stack.push('(');
+            stack.push('-');
+            stack.push('(');
+            int open = 1, close = 0;
+            int j;
+            for (j = i + 3; close != open; ++j) {
+                if (inputString[j] == '(')
+                    open++;
+                if (inputString[j] == ')')
+                    close++;
+//                stack.push(inputString[j]);
+//                std::cout<<" c "<<close<<" o "<<open;
+            }
+            inputString.insert(j, ")");
+//            stack.push(')');
+            i += 2;
+//            std::cout << "- p " << stack.getStack()<<"\n";
         }
 
     }
+    std::cout << "s \n" << stack.getStack() << "\n";
     for (int i = 0; i < inputString.length(); ++i) {
         inputStack.push(inputString[i]);
     }
@@ -93,6 +89,13 @@ Stack fillInTheBlanksByMultiplying(std::string input) { //Filling the blanks by 
             i++;
         }
         if (input[i] == ')' && input[i + 1] > 47 && input[i + 1] < 58) {
+            stack.push('*');
+            input.insert(i + 1, "*");
+//            std::cout<<" i "<<i<<" ";
+            i++;
+        }
+        if (input[i] == ')' && ((input[i + 1] >= 65 && input[i + 1] <= 90) ||
+                                (input[i + 1] >= 97 && input[i + 1] <= 122))) {
             stack.push('*');
             input.insert(i + 1, "*");
 //            std::cout<<" i "<<i<<" ";
