@@ -2,6 +2,16 @@
 #include "Stack.hpp"
 #include "Symbols.hpp"
 
+//void putBracket(Stack &inputStack){
+//    std::string inputString = inputStack.stackToString();
+//
+//    for (int k = 0; k < 4; ++k) {
+//        for (int i = 0; i < ; ++i) {
+//
+//        }
+//    }
+//}
+
 void bracketsForNegativeSign(Stack &inputStack) {
     std::string inputString = inputStack.stackToString();
     std::string stringReplace;
@@ -71,36 +81,49 @@ void bracketsForNegativeSign(Stack &inputStack) {
     }
 }
 
-void fillInTheBlanksByMultiplying(std::string &input) { //Filling the blanks by multiplying char
+Stack fillInTheBlanksByMultiplying(std::string input) { //Filling the blanks by multiplying char
+    Stack stack;
     for (int i = 0; i < input.length(); ++i) {
+        stack.push(input[i]);
         if (input[i] == '(' && input[i - 1] > 47 && input[i - 1] < 58) {
+            char c = stack.pop();
+            stack.push('*');
+            stack.push(c);
             input.insert(i, "*");
             i++;
         }
         if (input[i] == ')' && input[i + 1] > 47 && input[i + 1] < 58) {
+            stack.push('*');
             input.insert(i + 1, "*");
+//            std::cout<<" i "<<i<<" ";
             i++;
         }
         if (input[i] == ')' && input[i + 1] == '(') {
+            stack.push('*');
             input.insert(i + 1, "*");
             i++;
         }
         if (((input[i] > 47 && input[i] < 58) || input[i] == '.') &&
             ((input[i + 1] >= 65 && input[i + 1] <= 90) || (input[i + 1] >= 97 && input[i + 1] <= 122))) {
+            stack.push('*');
             input.insert(i + 1, "*");
+            i++;
         }
+//        std::cout<<"S "<<stack.getStack()<<"\n";
     }
+    std::cout << "STACK \n" << stack.getStack() << "\n";
+    return stack;
 //    std::cout << input << "  11" << "\n";
 }
 
 int main() {
     std::string input;
     std::cin >> input;
-    fillInTheBlanksByMultiplying(input);
 
     Stack inputStack;
-    inputStack.pushStringToStack(input);
+    inputStack = fillInTheBlanksByMultiplying(input);
 
+//    inputStack.pushStringToStack(input);
     bracketsForNegativeSign(inputStack);
 
     std::cout << inputStack.stackToString();
