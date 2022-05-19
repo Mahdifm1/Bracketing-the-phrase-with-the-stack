@@ -1,16 +1,52 @@
 #include <iostream>
+#include <map>
 #include "Stack.hpp"
 #include "Symbols.hpp"
 
+std::string fDeleteBracket(Stack stack) {
+    std::string S = stack.stackToString();
 
+    std::map<int, bool> pMap;
+    for (int i = 0; i < S.size(); i++) {
+        std::map<int, bool>::iterator it;
+        if (S.at(i) == '(') {
+            pMap[i] = true;
+        } else if (S.at(i) == ')') {
+            it = pMap.end();
+            it--;
+            if (!(*it).second) {
+                pMap.erase(it);
+            } else {
+                S.erase(S.begin() + i);
+                S.erase(S.begin() + (*it).first);
+                pMap.erase(it);
+                i = i - 2;
+            }
+        } else {
+            if (!pMap.empty()) {
+                it = pMap.end();
+                it--;
+                (*it).second = false;
+            }
+        }
+    }
+
+    int open = 0, close = 0;
+    for (int i = 0; i < S.length(); ++i) {
+        if (S[i] == '(')
+            open++;
+        if (S[i] == ')')
+            close++;
+    }
+
+    return S;
+}
 
 void fPower(std::string &string, int &i) {
     Symbols symbols;
     std::string newString, firstNum = "", secNum = "";
     int countNum1 = 0, countNum2 = 0;
-    Stack newStack;
     newString = "(";
-//    std::cout << "!!! " << string << "\n";
 
     if (string[i - 1] == ')') {
         int close = 1, open = 0;
@@ -65,7 +101,7 @@ void fPower(std::string &string, int &i) {
         secNum += "(";
 
         if (string[j] >= 48 && string[j] <= 57)
-            secNum+=string[j];
+            secNum += string[j];
         int close = 0, open = 1;
         for (j++; close != open; ++j) {
             if (string[j] == ')')
@@ -83,6 +119,10 @@ void fPower(std::string &string, int &i) {
         int close = 0, open = 1;
         secNum += "(";
         countNum2++;
+//        if (string[i+2]=='-') {
+//            i++;
+//            countNum2++;
+//        }
         for (int j = i + 2; close != open; ++j) {
             if (string[j] == '(')
                 open++;
@@ -92,6 +132,7 @@ void fPower(std::string &string, int &i) {
             secNum += string[j];
             countNum2++;
         }
+//        countNum2 = secNum.length();
 
     } else {
         for (int j = i + 1; (string[j] >= 48 && string[j] <= 57) || string[j] == '.'; ++j) {
@@ -99,9 +140,11 @@ void fPower(std::string &string, int &i) {
             countNum2++;
         }
     }
-
-    string.replace(i - countNum1, countNum1 + countNum2 + 1, "(" + firstNum + string[i] + secNum + ")");
-    std::cout << "\nNum1 " << firstNum << " num2: " << secNum << "\n" << "!C " << string << "\n";
+//std::cout<<"num2  "<<secNum<<"  countNum2  "<<countNum2<<"\n";
+//    if (!(firstNum == "" && (secNum[0] == 65 && secNum[0] <= 90) || (secNum[0] >= 97 && secNum[0] <= 122))) {
+        string.replace(i - countNum1, countNum1 + countNum2 + 1, "(" + firstNum + string[i] + secNum + ")");
+//        std::cout << "\nNum1 " << firstNum << " num2: " << secNum << "\n" << "!C " << string << "\n";
+//    }
     i += 2;
 }
 
@@ -112,20 +155,10 @@ void putBracket(Stack &inputStack) {
     for (int k = 1; k < 4; ++k) {
         for (int i = 0; i < inputString.length(); ++i) {
             if (symbols.findSymbolPriority(inputString[i]) != 0 && symbols.findSymbolPriority(inputString[i]) == k) {
-                if (inputString[i] == '^') {
-                    fPower(inputString, i);
-                }
 //                else if (جذر)
 //                    fRoot(inputStack,i);
-                else if (inputString[i] == '*')
-                    fPower(inputString, i);
-                else if (inputString[i] == '/')
-                    fPower(inputString, i);
-                else if (inputString[i] == '%')
-                    fPower(inputString, i);
-                else if (inputString[i] == '+')
-                    fPower(inputString, i);
-                else if (inputString[i] == '-')
+//                else
+
                     fPower(inputString, i);
 
             }
@@ -133,11 +166,12 @@ void putBracket(Stack &inputStack) {
         }
 
     }
-    std::cout << "res\n" << inputString << "\n";
+//    std::cout << "res\n" << inputString << "\n";
     Stack newStack;
-    for (int i = 0; i < inputString.length(); ++i) {
-        newStack.push(inputString[i]);
-    }
+    newStack.pushStringToStack(inputString);
+//    for (int i = 0; i < inputString.length(); ++i) {
+//        newStack.push(inputString[i]);
+//    }
     inputStack = newStack;
 }
 
@@ -282,7 +316,7 @@ Stack bracketsForNegativeSign(Stack inputStack) {
         }
     }
 
-    std::cout << "s \n" << newStack.getStack() << "\n";
+//    std::cout << "s \n" << newStack.getStack() << "\n";
     return stack;
 }
 
@@ -321,9 +355,8 @@ Stack fillInTheBlanksByMultiplying(std::string input) { //Filling the blanks by 
             input.insert(i + 1, "*");
             i++;
         }
-//        std::cout<<"S "<<stack.getStack()<<"\n";
+
     }
-    std::cout << "STACK \n" << stack.getStack() << "\n";
     return stack;
 //    std::cout << input << "  11" << "\n";
 }
@@ -340,6 +373,24 @@ int main() {
 
     putBracket(inputStack);
 
-    std::cout <<"es\n"<< inputStack.stackToString();
+    std::string s=fDeleteBracket(inputStack);
+
+//    std::cout <<"\nes\n"<< inputStack.stackToString();
+//    std::string s = inputStack.stackToString();
+    int c = 0, o = 0;
+    for (int i = 0; i < s.length(); ++i) {
+        if (s[i] == '(')
+            o++;
+        if (s[i] == ')')
+            c++;
+    }
+
+    while (c<o) {
+        s+=")";
+        c++;
+    }
+
+    std::cout << s << "\no " << o << " c " << c;
+
     return 0;
 }
