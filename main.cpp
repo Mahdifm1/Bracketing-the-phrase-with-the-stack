@@ -3,7 +3,7 @@
 #include "Stack.hpp"
 #include "Symbols.hpp"
 
-std::string fDeleteBracket(Stack stack) {
+std::string fDeleteBracket(Stack stack) { //delete extra brackets
     std::string S = stack.stackToString();
 
     std::map<int, bool> pMap;
@@ -42,7 +42,7 @@ std::string fDeleteBracket(Stack stack) {
     return S;
 }
 
-void fPower(std::string &string, int &i) {
+void fBracket(std::string &string, int &i) { //put brackets for normal symbols
     Symbols symbols;
     std::string newString, firstNum = "", secNum = "";
     int countNum1 = 0, countNum2 = 0;
@@ -89,14 +89,10 @@ void fPower(std::string &string, int &i) {
     }
     if ((string[i + 1] >= 65 && string[i + 1] <= 90) || (string[i + 1] >= 97 && string[i + 1] <= 122)) {
         int j = i + 1;
-        bool negative = false;
-        if (string[j - 1] == '-')
-            negative = true;
         for (; (string[j] >= 65 && string[j] <= 90) || (string[j] >= 97 && string[j] <= 122); ++j) {
             secNum += string[j];
             countNum2++;
         }
-
 
         secNum += "(";
 
@@ -119,10 +115,7 @@ void fPower(std::string &string, int &i) {
         int close = 0, open = 1;
         secNum += "(";
         countNum2++;
-//        if (string[i+2]=='-') {
-//            i++;
-//            countNum2++;
-//        }
+
         for (int j = i + 2; close != open; ++j) {
             if (string[j] == '(')
                 open++;
@@ -132,7 +125,6 @@ void fPower(std::string &string, int &i) {
             secNum += string[j];
             countNum2++;
         }
-//        countNum2 = secNum.length();
 
     } else {
         for (int j = i + 1; (string[j] >= 48 && string[j] <= 57) || string[j] == '.'; ++j) {
@@ -140,42 +132,55 @@ void fPower(std::string &string, int &i) {
             countNum2++;
         }
     }
-//std::cout<<"num2  "<<secNum<<"  countNum2  "<<countNum2<<"\n";
-//    if (!(firstNum == "" && (secNum[0] == 65 && secNum[0] <= 90) || (secNum[0] >= 97 && secNum[0] <= 122))) {
-        string.replace(i - countNum1, countNum1 + countNum2 + 1, "(" + firstNum + string[i] + secNum + ")");
-//        std::cout << "\nNum1 " << firstNum << " num2: " << secNum << "\n" << "!C " << string << "\n";
-//    }
+
+    string.replace(i - countNum1, countNum1 + countNum2 + 1, "(" + firstNum + string[i] + secNum + ")");
+
     i += 2;
 }
 
-void putBracket(Stack &inputStack) {
+void fPower(std::string &string, int i) { //1^2^3 -> (1^(2^3))
+    Symbols symbols;
+    int placePowers[64];
+    int countPlacePowers = 0;
+    for (int j = i + 1; j < string.length(); ++j) {
+        if (symbols.findSymbolPriority(string[j]) != 0) {
+            if (string[j] == '^')
+                placePowers[countPlacePowers++] = j;
+            else
+                break;
+        }
+    }
+
+    for (int j = countPlacePowers - 1; j >= 0; --j) {
+        fBracket(string, placePowers[j]);
+    }
+}
+
+void putBracket(Stack &inputStack) { // find middle symbol
     std::string inputString = inputStack.getStack();
     Symbols symbols;
 
     for (int k = 1; k < 4; ++k) {
         for (int i = 0; i < inputString.length(); ++i) {
             if (symbols.findSymbolPriority(inputString[i]) != 0 && symbols.findSymbolPriority(inputString[i]) == k) {
-//                else if (جذر)
-//                    fRoot(inputStack,i);
-//                else
-
+                if (inputString[i] == '^') {
                     fPower(inputString, i);
+                    fBracket(inputString, i);
+                } else
+                    fBracket(inputString, i);
 
             }
 
         }
 
     }
-//    std::cout << "res\n" << inputString << "\n";
     Stack newStack;
     newStack.pushStringToStack(inputString);
-//    for (int i = 0; i < inputString.length(); ++i) {
-//        newStack.push(inputString[i]);
-//    }
+
     inputStack = newStack;
 }
 
-Stack bracketsForNegativeSign(Stack inputStack) {
+Stack bracketsForNegativeSign(Stack inputStack) { //put bracket for negative numbers and functions
     std::string inputString = inputStack.stackToString();
     std::string stringReplace;
     Symbols symbols;
@@ -186,7 +191,7 @@ Stack bracketsForNegativeSign(Stack inputStack) {
         int countCloseBracket = i + 3;
 
         if ((inputString[i] == '(' || symbols.findSymbolPriority(inputString[i]) != 0) && inputString[i + 1] == '-' &&
-            inputString[i + 2] == '(') {
+            inputString[i + 2] == '(') { //(-(...)) || *-(...)
             int close = 0, open = 1;
             int j;
             stack.push('(');
@@ -205,7 +210,7 @@ Stack bracketsForNegativeSign(Stack inputStack) {
 
             i += 2;
         } else if ((inputString[i] == '(' || symbols.findSymbolPriority(inputString[i]) != 0) &&
-                   inputString[i + 1] == '-' && inputString[i + 2] != '(') { //for (-sin15 + ...
+                   inputString[i + 1] == '-' && inputString[i + 2] != '(') { // (-sin15 + ... || *-15
             stack.push('(');
             stack.push('-');
 
@@ -252,7 +257,7 @@ Stack bracketsForNegativeSign(Stack inputStack) {
 
 
         } else if ((inputString[i] >= 65 && inputString[i] <= 90) ||
-                   (inputString[i] >= 97 && inputString[i] <= 122)) {
+                   (inputString[i] >= 97 && inputString[i] <= 122)) { //sin5 || f(-4)
             std::string func, num;
             int j;
             for (j = i; (inputString[j] >= 65 && inputString[j] <= 90) ||
@@ -316,7 +321,6 @@ Stack bracketsForNegativeSign(Stack inputStack) {
         }
     }
 
-//    std::cout << "s \n" << newStack.getStack() << "\n";
     return stack;
 }
 
@@ -334,14 +338,12 @@ Stack fillInTheBlanksByMultiplying(std::string input) { //Filling the blanks by 
         if (input[i] == ')' && input[i + 1] > 47 && input[i + 1] < 58) {
             stack.push('*');
             input.insert(i + 1, "*");
-//            std::cout<<" i "<<i<<" ";
             i++;
         }
         if (input[i] == ')' && ((input[i + 1] >= 65 && input[i + 1] <= 90) ||
                                 (input[i + 1] >= 97 && input[i + 1] <= 122))) {
             stack.push('*');
             input.insert(i + 1, "*");
-//            std::cout<<" i "<<i<<" ";
             i++;
         }
         if (input[i] == ')' && input[i + 1] == '(') {
@@ -358,7 +360,6 @@ Stack fillInTheBlanksByMultiplying(std::string input) { //Filling the blanks by 
 
     }
     return stack;
-//    std::cout << input << "  11" << "\n";
 }
 
 int main() {
@@ -368,15 +369,13 @@ int main() {
     Stack inputStack;
     inputStack = fillInTheBlanksByMultiplying(input);
 
-//    inputStack.pushStringToStack(input);
     inputStack = bracketsForNegativeSign(inputStack);
 
     putBracket(inputStack);
 
-    std::string s=fDeleteBracket(inputStack);
+    std::string s = fDeleteBracket(inputStack);
 
-//    std::cout <<"\nes\n"<< inputStack.stackToString();
-//    std::string s = inputStack.stackToString();
+
     int c = 0, o = 0;
     for (int i = 0; i < s.length(); ++i) {
         if (s[i] == '(')
@@ -385,12 +384,12 @@ int main() {
             c++;
     }
 
-    while (c<o) {
-        s+=")";
+    while (c < o) {
+        s += ")";
         c++;
     }
 
-    std::cout << s << "\no " << o << " c " << c;
+    std::cout << s;
 
     return 0;
 }

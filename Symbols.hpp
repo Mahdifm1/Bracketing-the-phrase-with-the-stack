@@ -6,7 +6,6 @@ public:
     Symbols() {
         priority[0][0] = '^';
         priority[0][1] = 1;
-        priority[1][0];//       جذر
         priority[1][1] = 1;
         priority[2][0] = '%';
         priority[2][1] = 2;
